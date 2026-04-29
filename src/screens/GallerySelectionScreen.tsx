@@ -90,16 +90,14 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     color: '#065F46',
     textAlign: 'center',
-    marginBottom: 48,
-    position: 'absolute',
-    top: 25,
+    marginBottom: 24,
     width: '100%',
   },
   iconsContainer: {
     alignItems: 'center',
     justifyContent: 'center',
     gap: 48,
-    marginTop: -50,
+    marginTop: 20,
   },
   iconButton: {
     alignItems: 'center',

@@ -225,7 +225,7 @@ export function FishGalleryScreen({ route }: Props) {
         <Pressable style={styles.filterCard} onPress={() => setPondModalVisible(true)}>
           <Text style={styles.filterLabel}>魚塘</Text>
           <Text style={styles.filterValue}>
-            {pondFilter === 'all' ? '所有魚塘' : userPonds.find((p) => p.id === pondFilter)?.pond_id || '已選擇'}
+            {pondFilter === 'all' ? '所有魚塘' : (userPonds || []).find((p) => p.id === pondFilter)?.pond_id || '已選擇'}
           </Text>
         </Pressable>
         <Pressable style={styles.filterCard} onPress={() => setPeriodModalVisible(true)}>
@@ -260,7 +260,7 @@ export function FishGalleryScreen({ route }: Props) {
           renderItem={({ item }) => (
             <Pressable style={styles.card} onPress={() => openDetail(item)}>
               <View style={styles.imageContainer}>
-                <Image source={{ uri: item.file_url }} style={styles.thumb} />
+                {item.file_url ? <Image source={{ uri: item.file_url }} style={styles.thumb} /> : <View style={[styles.thumb, { backgroundColor: '#E5E7EB' }]} />}
               </View>
 
               <View style={styles.cardBody}>
@@ -290,7 +290,7 @@ export function FishGalleryScreen({ route }: Props) {
           </View>
 
           <FlatList
-            data={[{ id: 'all', pond_id: 'all', name: '所有魚塘' } as any, ...userPonds]}
+            data={[{ id: 'all', pond_id: 'all', name: '所有魚塘' } as any, ...(userPonds || [])]}
             keyExtractor={(p) => p.id}
             ItemSeparatorComponent={() => <View style={styles.sep} />}
             renderItem={({ item }) => {
