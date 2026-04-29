@@ -2,7 +2,7 @@
   "expo": {
     "name": "HKWCA APP",
     "slug": "mobile",
-    "version": "0.23.0",
+    "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/App_icon.png",
     "userInterfaceStyle": "light",
@@ -26,7 +26,7 @@
     },
     "android": {
       "package": "com.hkwca.app",
-      "versionCode": 23,
+      "versionCode": 100,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#59B8CE"
