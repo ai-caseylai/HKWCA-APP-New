@@ -1,0 +1,23 @@
+{
+  "expo": {
+    "name": "HKWCA APP",
+    "slug": "hkwca-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.hkwca.app"
+    },
+    "android": {
+      "package": "com.hkwca.app"
+    }
+  }
+}
