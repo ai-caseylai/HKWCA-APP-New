@@ -1,0 +1,1535 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>HKWCA APP 預覽</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background-color: #f5f5f5;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      padding: 20px;
+      color: #374151;
+    }
+
+    .screens-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+      justify-content: center;
+    }
+
+    .screen-wrapper {
+      text-align: center;
+    }
+
+    .screen-label {
+      font-size: 14px;
+      font-weight: 700;
+      color: #374151;
+      margin-bottom: 10px;
+    }
+
+    .phone-frame {
+      width: 375px;
+      height: 812px;
+      background: #fff;
+      border-radius: 40px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      overflow: hidden;
+      position: relative;
+      border: 8px solid #1a1a1a;
+    }
+
+    .screen {
+      width: 100%;
+      height: 100%;
+      background: #fff;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .screen::-webkit-scrollbar {
+      display: none;
+    }
+    .screen {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Header */
+    .header {
+      background: rgba(0, 153, 153, 1);
+      padding: 50px 16px 16px;
+      text-align: center;
+    }
+
+    .header-with-back {
+      background: rgba(0, 153, 153, 1);
+      padding: 50px 16px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-title {
+      color: white;
+      font-size: 24px;
+      font-weight: 900;
+    }
+
+    .back-btn {
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+    }
+
+    .back-btn svg {
+      width: 28px;
+      height: 28px;
+      fill: white;
+    }
+
+    .user-bar {
+      padding: 12px 16px;
+      background: #fff;
+      border-bottom: 1px solid #E5E7EB;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .user-icon {
+      width: 28px;
+      height: 28px;
+      background: #E5E7EB;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .user-icon svg {
+      width: 16px;
+      height: 16px;
+      fill: #374151;
+    }
+
+    .user-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: #111827;
+    }
+
+    /* Menu Grid */
+    .menu-grid {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .menu-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .menu-item {
+      flex: 1;
+      background: transparent;
+      border: none;
+      border-radius: 16px;
+      padding: 12px 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .menu-item:hover {
+      background: #F3F4F6;
+      transform: translateY(-2px);
+    }
+
+    .menu-icon {
+      width: 90px;
+      height: 90px;
+      margin: 0 auto 8px;
+    }
+
+    .menu-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .menu-label {
+      font-size: 12px;
+      font-weight: 800;
+      color: #111827;
+    }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border-top: 1px solid #E5E7EB;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0 25px;
+      height: 60px;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      color: #9CA3AF;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .nav-item.active {
+      color: rgba(0, 153, 153, 1);
+    }
+
+    .nav-item svg {
+      width: 28px;
+      height: 28px;
+    }
+
+    /* Modal */
+    .modal-header {
+      padding: 50px 16px 16px;
+      border-bottom: 1px solid #E5E7EB;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #F9FAFB;
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 900;
+      color: #111827;
+    }
+
+    .modal-close {
+      color: #059669;
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .modal-body {
+      padding: 16px;
+      overflow-y: auto;
+    }
+
+    /* About Section Styles */
+    .about-title {
+      font-size: 16px;
+      font-weight: 900;
+      color: #111827;
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+
+    .about-section-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #111827;
+      margin: 14px 0 6px;
+    }
+
+    .requirement-section-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #111827;
+      margin: 12px 0 6px;
+    }
+
+    .requirement-section-title.good {
+      color: #059669;
+    }
+
+    .requirement-section-title.bad {
+      color: #DC2626;
+    }
+
+    .about-text {
+      font-size: 13px;
+      color: #374151;
+      line-height: 1.5;
+      margin-bottom: 8px;
+    }
+
+    .about-text.green {
+      color: #059669;
+    }
+
+    .about-list-item {
+      font-size: 12px;
+      color: #374151;
+      line-height: 1.4;
+      margin-bottom: 4px;
+      padding-left: 4px;
+    }
+
+    .about-footer {
+      font-size: 11px;
+      color: #6B7280;
+      font-style: italic;
+      margin: 12px 0;
+      line-height: 1.4;
+    }
+
+    .example-image {
+      width: 100%;
+      height: 100px;
+      margin: 6px 0;
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .example-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .example-badge {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .example-badge.good {
+      background: #059669;
+    }
+
+    .example-badge.bad {
+      background: #DC2626;
+    }
+
+    .example-badge svg {
+      width: 14px;
+      height: 14px;
+      fill: white;
+    }
+
+    /* Logo Section */
+    .logo-section {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #E5E7EB;
+    }
+
+    .logo-row {
+      margin-bottom: 10px;
+    }
+
+    .logo-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #111827;
+      margin-bottom: 6px;
+    }
+
+    .logo-container {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .org-logo {
+      width: 70px;
+      height: 50px;
+    }
+
+    .org-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    /* Submit Screen */
+    .submit-content {
+      padding: 16px;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .form-select {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid #E5E7EB;
+      border-radius: 12px;
+      font-size: 14px;
+      background: #F9FAFB;
+      color: #111827;
+    }
+
+    .photo-requirements-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 12px;
+      background: #F0FDF4;
+      border: 1px solid #86EFAC;
+      border-radius: 12px;
+      color: #059669;
+      font-size: 14px;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 14px;
+      cursor: pointer;
+    }
+
+    .photo-requirements-btn svg {
+      width: 20px;
+      height: 20px;
+      fill: #059669;
+    }
+
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .photo-item {
+      aspect-ratio: 1;
+      background: #F3F4F6;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #9CA3AF;
+      font-size: 32px;
+      overflow: hidden;
+    }
+
+    .photo-item.add {
+      border: 2px dashed #D1D5DB;
+      background: #FAFAFA;
+    }
+
+    .photo-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 14px;
+      background: #059669;
+      border: none;
+      border-radius: 999px;
+      color: white;
+      font-size: 16px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    /* Flow Buttons - 期別選擇 */
+    .flow-section {
+      padding: 16px;
+    }
+
+    .flow-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 12px;
+    }
+
+    .flow-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .flow-button {
+      flex: 1;
+      padding: 12px 8px;
+      border-radius: 12px;
+      text-align: center;
+      cursor: pointer;
+      border: 2px solid transparent;
+    }
+
+    .flow-button.selected {
+      border-color: #059669;
+      background: #D1FAE5;
+    }
+
+    .flow-button.submitted {
+      background: #F3F4F6;
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .flow-button-text {
+      font-size: 12px;
+      font-weight: 700;
+      color: #111827;
+      line-height: 1.3;
+      white-space: pre-line;
+    }
+
+    .flow-button.submitted .flow-button-text {
+      color: #9CA3AF;
+    }
+
+    .flow-hint {
+      font-size: 12px;
+      color: #6B7280;
+      margin-top: 12px;
+    }
+
+    /* Map Screen */
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+
+    .map-hint-box {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      right: 10px;
+      z-index: 9999;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(17,24,39,0.85);
+      color: #fff;
+      font-size: 13px;
+    }
+
+    .map-bottom-panel {
+      padding: 14px 14px 34px;
+      border-top: 1px solid #eee;
+      background: #fff;
+    }
+
+    .map-coord-row {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .map-coord-label {
+      color: #6b7280;
+      font-size: 12px;
+    }
+
+    .map-coord-value {
+      font-weight: 800;
+      font-size: 13px;
+    }
+
+    .map-actions {
+      display: flex;
+      flex-direction: row;
+      gap: 10px;
+    }
+
+    .map-btn {
+      flex: 1;
+      padding: 12px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .map-btn-secondary {
+      background: #F3F4F6;
+      color: #111827;
+    }
+
+    .map-btn-primary {
+      background: #34D399;
+      color: #065F46;
+    }
+
+    /* Records Screen */
+    .records-card {
+      background: #F9FAFB;
+      border: 1px solid #E5E7EB;
+      border-radius: 16px;
+      padding: 14px;
+      margin: 12px 16px;
+    }
+
+    .records-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .records-card-title {
+      font-size: 14px;
+      font-weight: 900;
+      color: #111827;
+    }
+
+    .records-card-count {
+      font-size: 11px;
+      color: #6B7280;
+    }
+
+    .record-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #F3F4F6;
+    }
+
+    .record-item:last-child {
+      border-bottom: none;
+    }
+
+    .record-info {
+      flex: 1;
+    }
+
+    .record-pond {
+      font-size: 13px;
+      font-weight: 700;
+      color: #111827;
+    }
+
+    .record-date {
+      font-size: 11px;
+      color: #6B7280;
+    }
+
+    .record-status {
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .record-status.pending {
+      background: #FEF3C7;
+      color: #D97706;
+    }
+
+    .record-status.approved {
+      background: #D1FAE5;
+      color: #059669;
+    }
+
+    /* Gallery Screen */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      padding: 16px;
+      padding-bottom: 80px;
+    }
+
+    .gallery-item {
+      aspect-ratio: 1;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* More Screen */
+    .more-card {
+      background: #fff;
+      border: 1px solid #E5E7EB;
+      border-radius: 16px;
+      margin: 12px 16px;
+      padding: 14px;
+    }
+
+    .more-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .more-card-title {
+      font-size: 14px;
+      font-weight: 900;
+      color: #111827;
+    }
+
+    .more-card-header svg {
+      width: 20px;
+      height: 20px;
+      fill: #111827;
+    }
+
+    .more-menu-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 16px;
+      background: #fff;
+      border: 1px solid #E5E7EB;
+      border-radius: 16px;
+      margin: 0 16px 10px;
+      cursor: pointer;
+    }
+
+    .more-menu-text {
+      font-size: 14px;
+      font-weight: 900;
+      color: #111827;
+    }
+
+    .more-menu-arrow {
+      color: #9CA3AF;
+      font-size: 18px;
+    }
+
+    .logout-btn {
+      margin: 16px;
+      padding: 14px;
+      background: #EF4444;
+      border-radius: 999px;
+      color: white;
+      text-align: center;
+      font-size: 16px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    /* Info Card */
+    .info-cards-container {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .info-card {
+      flex: 1;
+      background: #F9FAFB;
+      border: 1px solid #E5E7EB;
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .info-card-label {
+      font-size: 11px;
+      color: #6B7280;
+      margin-bottom: 4px;
+    }
+
+    .info-card-value {
+      font-size: 14px;
+      font-weight: 700;
+      color: #111827;
+    }
+
+    .project-name-img {
+      width: 100%;
+      height: 50px;
+      object-fit: contain;
+      margin-bottom: 12px;
+    }
+
+    .about-project-img {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+
+    .footer-text {
+      text-align: center;
+      padding: 20px;
+      color: #9CA3AF;
+      font-size: 12px;
+    }
+
+    .leaflet-control-attribution {
+      display: none !important;
+    }
+
+    /* 確保 Leaflet 標記正確顯示 */
+    .leaflet-marker-icon {
+      display: block !important;
+      visibility: visible !important;
+    }
+
+    .leaflet-container {
+      font-family: inherit;
+    }
+  </style>
+</head>
+<body>
+  <h1>HKWCA APP 畫面預覽</h1>
+
+  <div class="screens-container">
+
+    <!-- 1. Splash Screen -->
+    <div class="screen-wrapper">
+      <div class="screen-label">1. 啟動畫面</div>
+      <div class="phone-frame">
+        <div class="screen" style="background: #59B8CE; overflow: hidden;">
+          <img src="assets/App loading page_3 second.jpg" style="width: 100%; height: 100%; object-fit: cover;" alt="Splash Screen">
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Home Screen -->
+    <div class="screen-wrapper">
+      <div class="screen-label">2. 首頁</div>
+      <div class="phone-frame">
+        <div class="screen">
+          <div class="header">
+            <div class="header-title">主頁</div>
+          </div>
+          <div class="user-bar">
+            <div class="user-icon">
+              <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            </div>
+            <div class="user-name">陳大文</div>
+          </div>
+          <div class="menu-grid" style="padding-bottom: 80px;">
+            <div class="menu-row">
+              <div class="menu-item">
+                <div class="menu-icon">
+                  <img src="assets/Camera_01_Fishpond.png" alt="提交魚塘相片">
+                </div>
+                <div class="menu-label">提交魚塘相片</div>
+              </div>
+              <div class="menu-item">
+                <div class="menu-icon">
+                  <img src="assets/Camera_02_Bird.png" alt="提交雀鳥相片">
+                </div>
+                <div class="menu-label">提交雀鳥相片</div>
+              </div>
+            </div>
+            <div class="menu-row">
+              <div class="menu-item">
+                <div class="menu-icon">
+                  <img src="assets/Record_01_Fishpond.png" alt="我的魚塘記錄">
+                </div>
+                <div class="menu-label">我的魚塘記錄</div>
+              </div>
+              <div class="menu-item">
+                <div class="menu-icon">
+                  <img src="assets/Record_02_Bird.png" alt="我的雀鳥記錄">
+                </div>
+                <div class="menu-label">我的雀鳥記錄</div>
+              </div>
+            </div>
+            <div class="menu-row">
+              <div class="menu-item">
+                <div class="menu-icon">
+                  <img src="assets/Album_01_Fishpond.png" alt="魚塘相簿">
+                </div>
+                <div class="menu-label">魚塘相簿</div>
+              </div>
+              <div class="menu-item">
+                <div class="menu-icon">
+                  <img src="assets/Album_02_Bird.png" alt="雀鳥相簿">
+                </div>
+                <div class="menu-label">雀鳥相簿</div>
+              </div>
+            </div>
+          </div>
+          <div class="bottom-nav">
+            <div class="nav-item active">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+              <span>首頁</span>
+            </div>
+            <div class="nav-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+              <span>相簿</span>
+            </div>
+            <div class="nav-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              <span>提交</span>
+            </div>
+            <div class="nav-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+              <span>記錄</span>
+            </div>
+            <div class="nav-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+              <span>更多</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Submit Screen - 選擇魚塘 + 地圖 -->
+    <div class="screen-wrapper">
+      <div class="screen-label">3. 提交魚塘相片 - 選擇魚塘</div>
+      <div class="phone-frame">
+        <div class="screen">
+          <div class="header-with-back">
+            <span class="back-btn">
+              <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+            </span>
+            <div class="header-title">提交魚塘相片</div>
+          </div>
+          <div class="flow-section" style="padding-bottom: 80px;">
+            <!-- 選擇魚塘 -->
+            <div class="form-group">
+              <label class="form-label">選擇魚塘</label>
+              <div style="background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 12px; padding: 14px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <div style="font-size: 11px; color: #6B7280;">魚塘編號</div>
+                  <div style="font-size: 15px; font-weight: 700; color: #111827;">MP-001</div>
+                </div>
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="#9CA3AF"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+              </div>
+            </div>
+
+            <!-- 魚塘位置地圖 -->
+            <div class="form-group">
+              <label class="form-label">魚塘位置地圖</label>
+              <div style="height: 180px; border-radius: 14px; overflow: hidden; border: 1px solid #E5E7EB; position: relative;">
+                <div id="pond-map" style="width: 100%; height: 100%;"></div>
+              </div>
+              <div style="margin-top: 8px; padding: 8px 12px; background: #D1FAE5; borderRadius: 8px; display: flex; align-items: center; gap: 8px;">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="#059669"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                <span style="font-size: 12px; font-weight: 700; color: #065F46;">已選擇: MP-001</span>
+              </div>
+            </div>
+
+            <div class="flow-title">選擇降水工作階段</div>
+
+            <div class="flow-row">
+              <div class="flow-button" style="background: #89C2D9;">
+                <div class="flow-button-text">降水前</div>
+              </div>
+            </div>
+
+            <div class="flow-row">
+              <div class="flow-button selected" style="background: #C2F6F4;">
+                <div class="flow-button-text">基本
+降水後
+第1天</div>
+              </div>
+              <div class="flow-button" style="background: #C2F6F4;">
+                <div class="flow-button-text">基本
+降水後
+第7天</div>
+              </div>
+            </div>
+
+            <div class="flow-row">
+              <div class="flow-button" style="background: #9DD4D1;">
+                <div class="flow-button-text">乾塘後
+第1天</div>
+              </div>
+              <div class="flow-button submitted" style="background: #F3F4F6;">
+                <div class="flow-button-text">乾塘後
+第7天
+(已提交)</div>
+              </div>
+            </div>
+
+            <div class="flow-hint">已提交階段：乾塘後第7天</div>
+
+            <button class="submit-btn" style="margin-top: 16px;">下一步</button>
+          </div>
+          <div class="bottom-nav">
+            <div class="nav-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+              <span>首頁</span>
+            </div>
+            <div class="nav-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+              <span>相簿</span>
+            </div>
+            <div class="nav-item active">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4" fill="currentColor"/></svg>
+              <span>提交</span>
+            </div>
+            <div class="nav-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+              <span>記錄</span>
+            </div>
+            <div class="nav-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+              <span>更多</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Submit Screen - 上傳相片 -->
+    <div class="screen-wrapper">
+      <div class="screen-label">4. 提交魚塘相片 - 上傳相片</div>
+      <div class="phone-frame">
+        <div class="screen">
+          <div class="header-with-back">
+            <span class="back-btn">
+              <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+            </span>
+            <div class="header-title">提交魚塘相片</div>
+          </div>
+          <div class="submit-content" style="padding-bottom: 80px;">
+            <div class="photo-requirements-btn">
+              <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              相片要求
+            </div>
+
+            <div class="info-cards-container">
+              <div class="info-card">
+                <div class="info-card-label">魚塘編號</div>
+                <div class="info-card-value">MP-001</div>
+              </div>
+              <div class="info-card">
+                <div class="info-card-label">降水階段</div>
+                <div class="info-card-value">基本降水後第1天</div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">相片（最少3張，最多6張）</label>
+              <div class="photo-grid">
+                <div class="photo-item">
+                  <img src="assets/Pond_R01_compressed.jpg" alt="Photo 1">
+                </div>
+                <div class="photo-item">
+                  <img src="assets/Pond_R02_compressed.jpg" alt="Photo 2">
+                </div>
+                <div class="photo-item add">+</div>
+                <div class="photo-item add">+</div>
+                <div class="photo-item add">+</div>
+                <div class="photo-item add">+</div>
+              </div>
+            </div>
+
+            <button class="submit-btn">提交</button>
+          </div>
+          <div class="bottom-nav">
+            <div class="nav-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+              <span>首頁</span>
+            </div>
+            <div class="nav-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+              <span>相簿</span>
+            </div>
+            <div class="nav-item active">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4" fill="currentColor"/></svg>
+              <span>提交</span>
+            </div>
+            <div class="nav-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+              <span>記錄</span>
+            </div>
+            <div class="nav-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+              <span>更多</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. Map Screen -->
+    <div class="screen-wrapper">
+      <div class="screen-label">5. 選擇位置（地圖）</div>
+      <div class="phone-frame">
+        <div class="screen" style="display: flex; flex-direction: column;">
+          <div style="flex: 1; position: relative; min-height: 500px;">
+            <div id="map" style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; right: 0; bottom: 0;"></div>
+            <div class="map-hint-box">點選地圖以設定位置</div>
+          </div>
+          <div class="map-bottom-panel">
+            <div class="map-coord-row">
+              <span class="map-coord-label">座標：</span>
+              <span class="map-coord-value">22.475123, 114.032456</span>
+            </div>
+            <div class="map-actions">
+              <button class="map-btn map-btn-secondary">定位到我</button>
+              <button class="map-btn map-btn-primary">確定</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. Fish Photo Requirements Modal -->
+    <div class="screen-wrapper">
+      <div class="screen-label">6. 魚塘相片要求</div>
+      <div class="phone-frame">
+        <div class="screen">
+          <div class="modal-header">
+            <div class="modal-title">魚塘相片要求</div>
+            <div class="modal-close">關閉</div>
+          </div>
+          <div class="modal-body" style="max-height: 650px; padding-bottom: 20px;">
+            <div class="about-section-title">拍攝魚塘水位相片：</div>
+            <div class="about-text">監察管理工作實施 — 在協議實施地點於指定降水工作階段，拍攝該魚塘的水位。</div>
+            <div class="about-text">指定降水工作階段：降水前、基本降水後第1日、基本降水後第7日、乾塘後第1日、乾塘後第7日。</div>
+
+            <div class="about-section-title">魚塘水位相片要求</div>
+            <div class="about-text">合共拍攝最少3張相片：</div>
+            <div class="about-list-item">• 最少1張全景相片：清楚展示整個魚塘</div>
+            <div class="about-list-item">• 最少2張近景相片：清楚展示魚塘水位</div>
+            <div class="about-list-item">• 必須為日間拍攝的相片</div>
+
+            <div class="requirement-section-title good">合符要求之相片示例：</div>
+            <div class="about-text green">基本降水相片示例：</div>
+            <div class="example-image">
+              <img src="assets/Pond_R01_compressed.jpg" alt="好的示例1">
+              <div class="example-badge good"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
+            </div>
+            <div class="example-image">
+              <img src="assets/Pond_R02_compressed.jpg" alt="好的示例2">
+              <div class="example-badge good"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
+            </div>
+            <div class="about-text green">乾塘相片示例：</div>
+            <div class="example-image">
+              <img src="assets/Pond_R03_compressed.jpg" alt="好的示例3">
+              <div class="example-badge good"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
+            </div>
+            <div class="example-image">
+              <img src="assets/Pond_R04_compressed.jpg" alt="好的示例4">
+              <div class="example-badge good"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
+            </div>
+
+            <div class="requirement-section-title bad">不合符要求之相片：</div>
+            <div class="about-list-item">• 相片模糊不清</div>
+            <div class="example-image">
+              <img src="assets/Pond_R05_compressed.jpg" alt="模糊不清">
+              <div class="example-badge bad"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></div>
+            </div>
+            <div class="about-list-item">• 晚上拍攝的相片</div>
+            <div class="example-image">
+              <img src="assets/Pond_R06_compressed.jpg" alt="晚上拍攝">
+              <div class="example-badge bad"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></div>
+            </div>
+            <div class="about-list-item">• 無法清楚顯示魚塘</div>
+            <div class="example-image">
+              <img src="assets/Pond_R07_compressed.jpg" alt="無法顯示魚塘">
+              <div class="example-badge bad"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></div>
+            </div>
+            <div class="about-list-item">• 同一時間拍攝多個魚塘</div>
+            <div class="example-image">
+              <img src="assets/Pond_R09_compressed.jpg" alt="多個魚塘">
+              <div class="example-badge bad"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. Bird Photo Requirements Modal -->
+    <div class="screen-wrapper">
+      <div class="screen-label">7. 雀鳥相片要求</div>
+      <div class="phone-frame">
+        <div class="screen">
+          <div class="modal-header">
+            <div class="modal-title">雀鳥相片要求</div>
+            <div class="modal-close">關閉</div>
+          </div>
+          <div class="modal-body" style="max-height: 650px; padding-bottom: 20px;">
+            <div class="about-section-title">拍攝雀鳥使用魚塘相片：</div>
+            <div class="about-text">監察管理工作成效 — 在協議實施地點拍攝雀鳥使用魚塘的相片。</div>
+
+            <div class="about-section-title">拍攝雀鳥使用該魚塘的照片</div>
+            <div class="about-text">相片須能夠清晰顯示雀鳥使用該魚塘</div>
+
+            <div class="requirement-section-title good">雀鳥相片示例（符合要求）：</div>
+            <div class="example-image">
+              <img src="assets/Bird_01_compressed.jpg" alt="雀鳥示例1">
+              <div class="example-badge good"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
+            </div>
+            <div class="example-image">
+              <img src="assets/Bird_02_compressed.jpg" alt="雀鳥示例2">
+              <div class="example-badge good"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
+            </div>
+            <div class="example-image">
+              <img src="assets/Bird_03_compressed.jpg" alt="雀鳥示例3">
+              <div class="example-badge good"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
+            </div>
+
+            <div class="requirement-section-title bad">不合符要求之相片：</div>
+            <div class="about-list-item">• 相片無法顯示雀鳥使用該魚塘</div>
+            <div class="example-image">
+              <img src="assets/Bird_04_compressed.jpg" alt="無雀鳥">
+              <div class="example-badge bad"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></div>
+            </div>
+            <div class="about-list-item">• 相片模糊不清</div>
+            <div class="example-image">
+              <img src="assets/Bird_05_compressed.jpg" alt="模糊">
+              <div class="example-badge bad"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></div>
+            </div>
+
+            <div class="about-section-title">備註：</div>
+            <div class="about-text">切勿過於接近雀鳥，以免驚擾雀鳥</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8. Records Screen -->
+    <div class="screen-wrapper">
+      <div class="screen-label">8. 我的記錄</div>
+      <div class="phone-frame">
+        <div class="screen">
+          <div class="header">
+            <div class="header-title">我的記錄</div>
+          </div>
+          <div style="padding-bottom: 80px;">
+            <div class="records-card">
+              <div class="records-card-header">
+                <div class="records-card-title">🐟 魚塘記錄</div>
+                <div class="records-card-count">共 12 筆</div>
+              </div>
+              <div class="record-item">
+                <div class="record-info">
+                  <div class="record-pond">MP-001</div>
+                  <div class="record-date">2024-02-15 · 降水前</div>
+                </div>
+                <div class="record-status approved">已審核</div>
+              </div>
+              <div class="record-item">
+                <div class="record-info">
+                  <div class="record-pond">MP-002</div>
+                  <div class="record-date">2024-02-14 · 乾塘後第1日</div>
+                </div>
+                <div class="record-status pending">待審核</div>
+              </div>
+            </div>
+
+            <div class="records-card">
+              <div class="records-card-header">
+                <div class="records-card-title">🦅 雀鳥記錄</div>
+                <div class="records-card-count">共 8 筆</div>
+              </div>
+              <div class="record-item">
+                <div class="record-info">
+                  <div class="record-pond">MP-001</div>
+                  <div class="record-date">2024-02-13 · 非降水/乾塘時</div>
+                </div>
+                <div class="record-status approved">已審核</div>
+              </div>
+            </div>
+          </div>
+          <div class="bottom-nav">
+            <div class="nav-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+              <span>首頁</span>
+            </div>
+            <div class="nav-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+              <span>相簿</span>
+            </div>
+            <div class="nav-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              <span>提交</span>
+            </div>
+            <div class="nav-item active">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8" stroke="currentColor" stroke-width="2" fill="none"/><line x1="16" y1="13" x2="8" y2="13" stroke="white" stroke-width="2"/><line x1="16" y1="17" x2="8" y2="17" stroke="white" stroke-width="2"/></svg>
+              <span>記錄</span>
+            </div>
+            <div class="nav-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+              <span>更多</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 9. Gallery Screen -->
+    <div class="screen-wrapper">
+      <div class="screen-label">9. 相簿</div>
+      <div class="phone-frame">
+        <div class="screen">
+          <div class="header-with-back">
+            <span class="back-btn">
+              <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+            </span>
+            <div class="header-title">魚塘相簿</div>
+          </div>
+          <div class="gallery-grid">
+            <div class="gallery-item">
+              <img src="assets/Pond_R01_compressed.jpg" alt="相片1">
+            </div>
+            <div class="gallery-item">
+              <img src="assets/Pond_R02_compressed.jpg" alt="相片2">
+            </div>
+            <div class="gallery-item">
+              <img src="assets/Pond_R03_compressed.jpg" alt="相片3">
+            </div>
+            <div class="gallery-item">
+              <img src="assets/Pond_R04_compressed.jpg" alt="相片4">
+            </div>
+            <div class="gallery-item">
+              <img src="assets/Bird_01_compressed.jpg" alt="相片5">
+            </div>
+            <div class="gallery-item">
+              <img src="assets/Bird_02_compressed.jpg" alt="相片6">
+            </div>
+          </div>
+          <div class="bottom-nav">
+            <div class="nav-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+              <span>首頁</span>
+            </div>
+            <div class="nav-item active">
+              <svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="18" height="18" rx="2" fill="currentColor"/><circle cx="8.5" cy="8.5" r="1.5" fill="white"/><path d="M21 15l-5-5L5 21" stroke="white" stroke-width="2" fill="none"/></svg>
+              <span>相簿</span>
+            </div>
+            <div class="nav-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              <span>提交</span>
+            </div>
+            <div class="nav-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+              <span>記錄</span>
+            </div>
+            <div class="nav-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+              <span>更多</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 10. More Screen -->
+    <div class="screen-wrapper">
+      <div class="screen-label">10. 更多</div>
+      <div class="phone-frame">
+        <div class="screen">
+          <div class="header">
+            <div class="header-title">更多</div>
+          </div>
+          <div style="padding-bottom: 80px;">
+            <div class="more-card">
+              <div class="more-card-header">
+                <div class="more-card-title">帳戶資料</div>
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+              </div>
+            </div>
+
+            <div class="more-menu-item">
+              <div class="more-menu-text">關於本計劃</div>
+              <div class="more-menu-arrow">›</div>
+            </div>
+            <div class="more-menu-item">
+              <div class="more-menu-text">教學</div>
+              <div class="more-menu-arrow">›</div>
+            </div>
+            <div class="more-menu-item">
+              <div class="more-menu-text">香港濕地保育協會</div>
+              <div class="more-menu-arrow">›</div>
+            </div>
+
+            <div class="logout-btn">登出</div>
+          </div>
+          <div class="bottom-nav">
+            <div class="nav-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+              <span>首頁</span>
+            </div>
+            <div class="nav-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+              <span>相簿</span>
+            </div>
+            <div class="nav-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              <span>提交</span>
+            </div>
+            <div class="nav-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+              <span>記錄</span>
+            </div>
+            <div class="nav-item active">
+              <svg viewBox="0 0 24 24" fill="currentColor"><line x1="3" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="2"/><line x1="3" y1="6" x2="21" y2="6" stroke="currentColor" stroke-width="2"/><line x1="3" y1="18" x2="21" y2="18" stroke="currentColor" stroke-width="2"/></svg>
+              <span>更多</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 11. About Project Modal -->
+    <div class="screen-wrapper">
+      <div class="screen-label">11. 關於本計劃</div>
+      <div class="phone-frame">
+        <div class="screen">
+          <div class="modal-header">
+            <div class="modal-title">關於本計劃</div>
+            <div class="modal-close">關閉</div>
+          </div>
+          <div class="modal-body" style="max-height: 650px; padding-bottom: 20px;">
+            <img src="assets/Project_name_compressed.png" class="project-name-img" alt="計劃名稱">
+            <img src="assets/About_project_compressed.jpg" class="about-project-img" alt="計劃活動">
+
+            <div class="about-section-title">計劃簡介</div>
+            <div class="about-text">計劃融合積極魚塘生境管理、科學監測與研究、公眾參與，夥拍后海灣米埔、大生圍及甩洲養魚戶，共同保育本地魚塘生態和文化，推廣本地漁業。</div>
+
+            <div class="about-section-title">目標</div>
+            <div class="about-list-item">• 夥拍養魚戶，於魚塘進行生境管理措施，為水鳥提供覓食和棲息的環境，以增強魚塘生態價值</div>
+            <div class="about-list-item">• 進行生態及環境調查，提供水鳥及其生境的數據，監測魚塘狀況，以支持可持續生境管理</div>
+            <div class="about-list-item">• 與養魚戶合作，向公眾宣傳本地魚塘文化及生態價值，促進生態保育與養魚的和諧共存</div>
+            <div class="about-list-item">• 提升公眾對濕地保育的認識及參與</div>
+
+            <div class="about-footer">*計劃由香港濕地保育協會主辧，鄉郊保育辦公室及鄉郊保育資助計劃資助</div>
+
+            <div class="logo-section">
+              <div class="logo-row">
+                <div class="logo-label">資助：</div>
+                <div class="logo-container">
+                  <div class="org-logo">
+                    <img src="assets/CCO_logo_compressed.png" alt="CCO">
+                  </div>
+                  <div class="org-logo">
+                    <img src="assets/CCFS_logo_compressed.png" alt="CCFS">
+                  </div>
+                </div>
+              </div>
+              <div class="logo-row">
+                <div class="logo-label">主辦：</div>
+                <div class="logo-container">
+                  <div class="org-logo">
+                    <img src="assets/HKWCA_Logo_compressed.png" alt="HKWCA">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <p class="footer-text">
+    HKWCA APP 預覽頁面 | 此頁面僅供參考，實際介面以手機版本為準
+  </p>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // 選擇位置地圖
+      var mapContainer = document.getElementById('map');
+      if (mapContainer) {
+        var map = L.map('map', {
+          zoomControl: true,
+          attributionControl: false
+        }).setView([22.475123, 114.032456], 15);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: ''
+        }).addTo(map);
+
+        var marker = L.marker([22.475123, 114.032456]).addTo(map);
+
+        map.on('click', function(e) {
+          marker.setLatLng(e.latlng);
+        });
+
+        setTimeout(function() {
+          map.invalidateSize();
+        }, 100);
+      }
+
+      // 魚塘位置地圖
+      var pondMapContainer = document.getElementById('pond-map');
+      if (pondMapContainer) {
+        var pondMap = L.map('pond-map', {
+          zoomControl: true,
+          attributionControl: false
+        }).setView([22.475123, 114.032456], 16);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: ''
+        }).addTo(pondMap);
+
+        // 藍色標記（未選中）
+        var blueIcon = L.icon({
+          iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+          shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+          iconSize: [25, 41],
+          iconAnchor: [12, 41],
+          popupAnchor: [1, -34],
+          shadowSize: [41, 41]
+        });
+
+        // 紅色標記（選中）
+        var redIcon = L.icon({
+          iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+          shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+          iconSize: [25, 41],
+          iconAnchor: [12, 41],
+          popupAnchor: [1, -34],
+          shadowSize: [41, 41]
+        });
+
+        // 添加一些魚塘標記
+        L.marker([22.474500, 114.031800], {icon: blueIcon}).addTo(pondMap).bindPopup('MP-002');
+        L.marker([22.475123, 114.032456], {icon: redIcon}).addTo(pondMap).bindPopup('MP-001 (已選擇)');
+        L.marker([22.475800, 114.033200], {icon: blueIcon}).addTo(pondMap).bindPopup('MP-003');
+
+        setTimeout(function() {
+          pondMap.invalidateSize();
+        }, 100);
+      }
+    });
+  </script>
+</body>
+</html>

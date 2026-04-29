@@ -1,0 +1,114 @@
+import React from 'react';
+import { Image, Pressable, StatusBar, StyleSheet, Text, View, Platform } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+import { FishPondGalleryIcon, BirdGalleryIcon } from '../components/CustomIcons';
+
+import type { MainTabParamList, RootStackParamList } from '../navigation/AppNavigator';
+
+type Props = BottomTabScreenProps<MainTabParamList, 'Gallery'>;
+
+export function GallerySelectionScreen({ route }: Props) {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
+  const statusBarHeight = Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0;
+
+  return (
+    <SafeAreaView style={styles.container} edges={['left', 'right']}>
+      <View style={[styles.header, { paddingTop: statusBarHeight + 16 }]}>
+        <View style={styles.titleContainer}>
+          <Text style={styles.title}>相簿</Text>
+        </View>
+      </View>
+      
+      <View style={styles.content}>
+        <Text style={styles.subtitle}>請選擇要查看的相簿類別</Text>
+        
+        <View style={styles.iconsContainer}>
+          <Pressable 
+            style={styles.iconButton}
+            onPress={() => {
+              navigation.navigate('FishGallery');
+            }}
+          >
+            <FishPondGalleryIcon size={176} />
+            <Text style={styles.iconLabel}>魚塘相片庫</Text>
+          </Pressable>
+
+          <Pressable 
+            style={styles.iconButton}
+            onPress={() => {
+              navigation.navigate('BirdGallery');
+            }}
+          >
+            <BirdGalleryIcon size={176} />
+            <Text style={styles.iconLabel}>雀鳥相片庫</Text>
+          </Pressable>
+        </View>
+      </View>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: 'rgba(0, 153, 153, 1)' },
+
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingBottom: 12,
+    paddingHorizontal: 16,
+    backgroundColor: 'rgba(0, 153, 153, 1)',
+    position: 'relative',
+    minHeight: 24,
+  },
+  titleContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    lineHeight: 24,
+  },
+
+  content: {
+    flex: 1,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  subtitle: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: '#065F46',
+    textAlign: 'center',
+    marginBottom: 48,
+    position: 'absolute',
+    top: 25,
+    width: '100%',
+  },
+  iconsContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 48,
+    marginTop: -50,
+  },
+  iconButton: {
+    alignItems: 'center',
+    gap: 3,
+  },
+  iconLabel: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: '#065F46',
+    marginTop: 3,
+  },
+});

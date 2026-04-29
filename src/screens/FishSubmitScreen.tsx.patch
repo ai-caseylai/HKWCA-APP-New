@@ -1,0 +1,20 @@
+--- a/src/screens/FishSubmitScreen.tsx
++++ b/src/screens/FishSubmitScreen.tsx
+@@ -653,10 +653,18 @@ export function FishSubmitScreen({ navigation, route }: Props) {
+       for (let i = 0; i < photos.length; i++) {
+         const p = photos[i];
+         console.log(`正在上傳第 ${i + 1}/${photos.length} 張照片...`);
++        console.log(`📤 上傳照片 URI: ${p.uri?.substring(0, 100)}`);
++        console.log(`🔐 選擇時 MD5: ${p.md5?.substring(0, 8).toUpperCase() || '無'}`);
+ 
+         const filename = `${mode}_${timestamp.replace(/[:.]/g, '-')}_${i + 1}.jpg`;
+         const file_base64 = await FileSystem.readAsStringAsync(p.uri, { encoding: FileSystem.EncodingType.Base64 });
+ 
++        // 驗證上傳前再次計算 MD5
++        const binaryString = base64ToBinary(file_base64);
++        const uploadMd5 = await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.MD5, binaryString);
++        console.log(`🔐 上傳前 MD5: ${uploadMd5.substring(0, 8).toUpperCase()}`);
++
+         const loc = p.location ?? fallbackLoc;
+         console.log('GPS位置:', loc, 'EXIF:', p.exifGps);
+ 

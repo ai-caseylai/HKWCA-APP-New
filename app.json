@@ -1,23 +1,76 @@
 {
   "expo": {
     "name": "HKWCA APP",
-    "slug": "hkwca-app",
-    "version": "1.0.0",
+    "slug": "mobile",
+    "version": "0.23.0",
     "orientation": "portrait",
+    "icon": "./assets/App_icon.png",
     "userInterfaceStyle": "light",
+    "newArchEnabled": true,
     "splash": {
+      "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#59B8CE"
     },
     "assetBundlePatterns": [
       "**/*"
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.hkwca.app"
+      "bundleIdentifier": "com.hkwca.app",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "用於在提交照片時記錄位置（GPS）。",
+        "NSPhotoLibraryUsageDescription": "允許存取相簿以選擇照片上傳。",
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
-      "package": "com.hkwca.app"
-    }
+      "package": "com.hkwca.app",
+      "versionCode": 23,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#59B8CE"
+      },
+      "edgeToEdgeEnabled": false,
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "READ_EXTERNAL_STORAGE",
+        "READ_MEDIA_IMAGES",
+        "READ_MEDIA_VIDEO",
+        "RECORD_AUDIO"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "cbda5a3c-419f-4a41-9489-f4aaa859af0b"
+      },
+      "apiBaseUrl": "https://tbcocbxpspekvqozfycu.supabase.co",
+      "extractExifUrl": "https://tbcocbxpspekvqozfycu.supabase.co/functions/v1/extract-exif-url"
+    },
+    "owner": "ai.casey",
+    "plugins": [
+      "expo-font",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "允許存取相簿以選擇照片上傳。",
+          "cameraPermission": "允許使用相機拍攝照片。"
+        }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "允許存取相簿以選擇照片上傳。",
+          "savePhotosPermission": "允許保存照片到相簿。",
+          "isAccessMediaLocationEnabled": true,
+          "requestAudioPermissions": false
+        }
+      ]
+    ]
   }
 }
